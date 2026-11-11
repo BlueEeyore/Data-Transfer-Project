@@ -5,7 +5,7 @@ import (
 	"os"
 )
 
-func Copy(in string, out string) (bytes int64, err error) {
+func Copy(in string, out string) (int64, error) {
 	src, err := os.Open(in)
 	if err != nil {
 		return 0, err
@@ -16,12 +16,17 @@ func Copy(in string, out string) (bytes int64, err error) {
 	if err != nil {
 		return 0, err
 	}
-	defer dst.Close()
+	// don't defer close, as error may come from closing file
 
-	bytes, err = io.Copy(dst, src)
+	nbytes, err := io.Copy(dst, src)
 	if err != nil {
-		return 0, err
+		return nbytes, err
+	}
+	
+	err = dst.Close()
+	if err != nil {
+		return nbytes, err
 	}
 
-	return bytes, nil
+	return nbytes, nil
 }
