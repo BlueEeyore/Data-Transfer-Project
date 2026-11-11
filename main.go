@@ -1,9 +1,9 @@
 package main
 
 import (
-	"fmt"
+	"github.com/BlueEeyore/Data-Transfer-Project.git/file_copy"
 )
 
 func main() {
-	fmt.Println("module initialised successfully")
+	file_copy.Copy("hello.txt", "backup.txt")
 }
