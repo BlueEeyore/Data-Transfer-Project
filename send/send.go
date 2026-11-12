@@ -5,11 +5,13 @@ import (
 	"net"
 	"bufio"
 	"os"
+	"log"
 )
 
 func Send(network, address, message string) (error) {
 	conn, err := net.Dial(network, address)
 	if err != nil {
+		log.Printf("failed to connect to network %v and address %v", network, address)
 		return err
 	}
 	defer conn.Close()
@@ -19,24 +21,25 @@ func Send(network, address, message string) (error) {
 	return nil
 }
 
-func SendInput(network, address string) (error) {
+func SendInput(network, address string) {
+	// connect to this address
 	conn, err := net.Dial(network, address)
 	if err != nil {
-		return err
+		log.Fatalf("failed to connect to network %v and address %v", network, address)
 	}
 	defer conn.Close()
 
+	// scan stdin line by line
 	scanner := bufio.NewScanner(os.Stdin)
-
 	for scanner.Scan() {
 		inp := scanner.Text()
 		fmt.Fprintln(conn, inp)
 	}
-	fmt.Fprintf(conn, "/over")
+
+	// send "/over" to signal end of message
+	fmt.Fprintln(conn, "/over")
 
 	if err := scanner.Err(); err != nil {
-		return err
+		log.Fatal("failed to scan user input")
 	}
-
-	return nil
 }
