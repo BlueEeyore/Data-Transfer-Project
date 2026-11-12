@@ -25,7 +25,7 @@ func SendInput(network, address string) {
 	// connect to this address
 	conn, err := net.Dial(network, address)
 	if err != nil {
-		log.Fatalf("failed to connect to network %v and address %v", network, address)
+		log.Fatal(err)
 	}
 	defer conn.Close()
 
@@ -40,6 +40,6 @@ func SendInput(network, address string) {
 	fmt.Fprintln(conn, "/over")
 
 	if err := scanner.Err(); err != nil {
-		log.Fatal("failed to scan user input")
+		log.Fatal(err)
 	}
 }

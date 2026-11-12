@@ -46,7 +46,7 @@ func HandleReceive(network, address string, ch chan string) {
 	// make a listener for this address
 	ln, err := net.Listen(network, address)
 	if err != nil {
-		log.Fatalf("failed to listen to network %v and address %v", network, address)
+		log.Fatal(err)
 	}
 	defer ln.Close()
 
@@ -54,7 +54,7 @@ func HandleReceive(network, address string, ch chan string) {
 		// wait for new connection and accept
 		conn, err := ln.Accept()
 		if err != nil {
-			log.Println("failed to accept new client")
+			log.Print(err)
 			continue
 		}
 
