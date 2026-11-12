@@ -5,7 +5,7 @@ import (
 )
 
 func main() {
-	err := send.Send("tcp", "localhost:8080", "Hello, World!")
+	err := send.SendInput("tcp", "localhost:8080")
 	if err != nil {
 		panic(err)
 	}
