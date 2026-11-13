@@ -6,6 +6,12 @@ import (
 	"bufio"
 	"log"
 	"fmt"
+	"os"
+	"github.com/BlueEeyore/Data-Transfer-Project.git/file"
+	"encoding/json"
+	"strings"
+	"errors"
+	"strconv"
 )
 
 func ReceivePing(network, address string) (string, error) {
@@ -30,6 +36,63 @@ func ReceivePing(network, address string) (string, error) {
 
 	return string(msg), nil
 }
+
+
+func ReceiveFile(network, address string) {
+	// initialise a listener to address
+	ln, err := net.Listen(network, address)
+	if err != nil {
+		log.Fatal(err)
+	}
+	defer ln.Close()
+
+	for {
+		// wait until someone dials and accept it
+		conn, err := ln.Accept()
+		if err != nil {
+			log.Fatal(err)
+		}
+
+		// decode received json data into FileMessage format
+		var fm file.FileMessage
+		err = json.NewDecoder(conn).Decode(&fm)
+		if err != nil {
+			log.Fatalln("failed to json decode", err)
+		}
+
+		dstName := uniqueDstName(fm.Name)
+
+		// write bytes into new file with same name as received
+		// 0644 sets standard file permissions (owner: read/write, others: read-only)
+		err = os.WriteFile(dstName, fm.File, 0644)
+		if err != nil {
+			log.Fatal(err)
+		}
+
+		conn.Close()
+	}
+}
+
+func uniqueDstName(name string) (string) {
+	// produce a filename that does not already exist in current directory
+	lastPeriod := strings.LastIndex(name, ".")
+	dstPrefix := name[:lastPeriod]
+	dstName := dstPrefix + name[lastPeriod:]
+	i := 0
+	for {
+		fmt.Println(dstName)
+		_, err := os.Stat(dstName)
+		if errors.Is(err, os.ErrNotExist) {
+			break
+		} else if err != nil {
+			log.Fatalln("failed to check for existing file name", err)
+		}
+		dstName = dstPrefix + strconv.Itoa(i) + name[lastPeriod:]
+		i++
+	}
+	return dstName
+}
+
 
 
 func Receive(network, address string) {

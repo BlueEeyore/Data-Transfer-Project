@@ -6,6 +6,8 @@ import (
 	"bufio"
 	"os"
 	"log"
+	"github.com/BlueEeyore/Data-Transfer-Project.git/file"
+	"encoding/json"
 )
 
 func Send(network, address, message string) (error) {
@@ -20,6 +22,37 @@ func Send(network, address, message string) (error) {
 
 	return nil
 }
+
+func SendFile(network, address, inpFile string) {
+	// connect to this address
+	conn, err := net.Dial(network, address)
+	if err != nil {
+		log.Fatal(err)
+	}
+	defer conn.Close()
+
+	// read file bytes of inpFile
+	srcbytes, err := os.ReadFile(inpFile)
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	// initialise FileMessage type
+	fm := file.NewFile(inpFile, srcbytes)
+
+	// convert to json
+	jbytes, err := json.Marshal(fm)
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	// write json bytes to connection
+	_, err = conn.Write(jbytes)
+	if err != nil {
+		log.Fatalln("failed to write bytes to connection", err)
+	}
+}
+
 
 func SendInput(network, address string) {
 	// connect to this address
