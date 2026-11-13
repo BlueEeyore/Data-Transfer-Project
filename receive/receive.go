@@ -39,38 +39,30 @@ func ReceivePing(network, address string) (string, error) {
 
 
 func ReceiveFile(network, address string) {
-	// initialise a listener to address
-	ln, err := net.Listen(network, address)
+	// connect to this address
+	conn, err := net.Dial(network, address)
 	if err != nil {
 		log.Fatal(err)
 	}
-	defer ln.Close()
+	defer conn.Close()
 
-	for {
-		// wait until someone dials and accept it
-		conn, err := ln.Accept()
-		if err != nil {
-			log.Fatal(err)
-		}
-
-		// decode received json data into FileMessage format
-		var fm file.FileMessage
-		err = json.NewDecoder(conn).Decode(&fm)
-		if err != nil {
-			log.Fatalln("failed to json decode", err)
-		}
-
-		dstName := uniqueDstName(fm.Name)
-
-		// write bytes into new file with same name as received
-		// 0644 sets standard file permissions (owner: read/write, others: read-only)
-		err = os.WriteFile(dstName, fm.File, 0644)
-		if err != nil {
-			log.Fatal(err)
-		}
-
-		conn.Close()
+	// decode received json data into FileMessage format
+	var fm file.FileMessage
+	err = json.NewDecoder(conn).Decode(&fm)
+	if err != nil {
+		log.Fatalln("failed to json decode", err)
 	}
+
+	dstName := uniqueDstName(fm.Name)
+
+	// write bytes into new file with same name as received
+	// 0644 sets standard file permissions (owner: read/write, others: read-only)
+	err = os.WriteFile(dstName, fm.File, 0644)
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	conn.Close()
 }
 
 func uniqueDstName(name string) (string) {

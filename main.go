@@ -3,6 +3,7 @@ package main
 import (
 	"github.com/BlueEeyore/Data-Transfer-Project.git/receive"
 	"github.com/BlueEeyore/Data-Transfer-Project.git/send"
+	"github.com/BlueEeyore/Data-Transfer-Project.git/iputils"
 	"flag"
 	"fmt"
 )
@@ -19,17 +20,20 @@ func main() {
 	if *sending {
 		if *fn == "" {
 			fmt.Println("please specify filename with -fn flag")
-		} else if *nw == "" {
-			fmt.Println("please provide network information")
 		} else {
-			network, address := send.ReadNetInfo(*nw)
-			send.SendFile(network, address, *fn)
+			ip := iputils.GetOutboundIp().String()
+
+			fmt.Printf("%v-%v-%v\n", *protocol, ip, *port)
+
+			send.SendFile(*protocol, ip+":"+*port, *fn)
 		}
 	} else {
-		ip := receive.GetOutboundIp().String()
+		if *nw == "" {
+			fmt.Println("please provide network information")
+		} else {
+			prot, address := iputils.ReadNetInfo(*nw)
 
-		fmt.Printf("%v-%v-%v\n", *protocol, ip, *port)
-
-		receive.ReceiveFile(*protocol, ip+":"+*port)
+			receive.ReceiveFile(prot, address)
+		}
 	}
 }

@@ -24,12 +24,12 @@ func Send(network, address, message string) (error) {
 }
 
 func SendFile(network, address, inpFile string) {
-	// connect to this address
-	conn, err := net.Dial(network, address)
+	// initialise a listener to address
+	ln, err := net.Listen(network, address)
 	if err != nil {
 		log.Fatal(err)
 	}
-	defer conn.Close()
+	defer ln.Close()
 
 	// read file bytes of inpFile
 	srcbytes, err := os.ReadFile(inpFile)
@@ -42,6 +42,12 @@ func SendFile(network, address, inpFile string) {
 
 	// convert to json
 	jbytes, err := json.Marshal(fm)
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	// wait until someone dials and accept it
+	conn, err := ln.Accept()
 	if err != nil {
 		log.Fatal(err)
 	}
