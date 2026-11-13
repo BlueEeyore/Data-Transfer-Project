@@ -2,34 +2,31 @@ package send
 
 import (
 	"bufio"
-	"os"
 	"log"
-	"fmt"
 	"strings"
+	"io"
 )
 
-func ReadNetInfo() (string, string) {
-	reader := bufio.NewReader(os.Stdin)
-	fmt.Printf("enter special string: ")
+func ReadNetInfo(infoStr string) (string, string) {
+	reader := bufio.NewReader(strings.NewReader(infoStr))
 
-	network, err := reader.ReadString(' ')
+	network, err := reader.ReadString('-')
 	if err != nil {
-		log.Fatalln("failed to read network from stdin", err)
+		log.Fatalln("failed to read network", err)
 	}
-	network = strings.TrimSuffix(network, " ")
+	network = strings.TrimSuffix(network, "-")
 
-	ip, err := reader.ReadString(' ')
+	ip, err := reader.ReadString('-')
 	if err != nil {
-		log.Fatalln("failed to read ip from stdin", err)
+		log.Fatalln("failed to read ip", err)
 	}
-	ip = strings.TrimSuffix(ip, " ")
+	ip = strings.TrimSuffix(ip, "-")
 
-	portBytes, err := reader.ReadString('\n')
+	portBytes, err := io.ReadAll(reader)
 	if err != nil {
-		log.Fatalln("failed to read port from stdin", err)
+		log.Fatalln("failed to read port", err)
 	}
 	port := string(portBytes)
-	port = strings.TrimSuffix(port, "\n")
 	
 	return network, ip+":"+port
 }

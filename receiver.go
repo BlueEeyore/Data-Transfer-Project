@@ -12,5 +12,5 @@ func main() {
 
 	fmt.Println(network, ip, port)
 
-	receive.ReceiveFile("tcp", ip+":"+port)
+	receive.ReceiveFile(network, ip+":"+port)
 }
