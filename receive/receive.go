@@ -62,6 +62,8 @@ func ReceiveFile(network, address string) {
 		log.Fatal(err)
 	}
 
+	fmt.Printf("Saved to %v", dstName)
+
 	conn.Close()
 }
 
@@ -72,7 +74,6 @@ func uniqueDstName(name string) (string) {
 	dstName := dstPrefix + name[lastPeriod:]
 	i := 0
 	for {
-		fmt.Println(dstName)
 		_, err := os.Stat(dstName)
 		if errors.Is(err, os.ErrNotExist) {
 			break
